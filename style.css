@@ -1,3 +1,4 @@
+--- START OF FILE style.css ---
 /* Import Font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
@@ -7,16 +8,16 @@
   --primary-dark: #e03e20; /* Un tono más oscuro de --primary-color para hover */
   --secondary-color: #ffc72c; /* Amarillo de los mockups */
   --secondary-dark: #f0b300; /* Un tono más oscuro de --secondary-color para hover */
-  
+
   --action-blue: #00AEF0; /* Azul para botones específicos como "Evaluar Mi Prompt" */
   --action-blue-dark: #0095D0;
 
   --text-color: #374151; /* Gris oscuro para texto general */
   --text-light: #6b7280; /* Gris medio para subtítulos, etc. */
-  
+
   --bg-color: #00AEF0; /* Azul claro para el fondo principal de la página */
   --bg-alt: #ffffff; /* Blanco para cards/secciones */
-  
+
   --border-color: #e5e7eb; /* Gris claro para bordes generales */
   --border-focus: var(--primary-color); /* Borde en focus usará el color primario */
 
@@ -267,7 +268,7 @@ code, .fraccion {
   border-top: 1px solid var(--border-color);
 }
 .collapsible-content.visible {
-  max-height: 1500px;
+  max-height: 1500px; /* Sufficiently large value */
 }
 .summary-table {
     width: 100%;
@@ -288,7 +289,7 @@ code, .fraccion {
     color: var(--text-color);
 }
 .summary-table tbody tr:nth-child(even) {
-    background-color: var(--bg-color);
+    background-color: var(--bg-color); /* Using bg-color for table rows */
 }
 .ejercicio {
     margin-top: 1rem;
@@ -326,6 +327,7 @@ label {
   font-weight: 500;
   margin-bottom: 0.25rem;
   display: block;
+  color: var(--text-color); /* Ensure labels are dark */
 }
 input[type="text"],
 textarea {
@@ -366,6 +368,7 @@ textarea {
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  line-height: 1.2; /* Adjust line-height for smaller buttons */
 }
 .btn:hover {
   transform: translateY(-1px);
@@ -524,7 +527,9 @@ textarea {
     color: var(--text-color);
     margin-bottom: 0.5rem;
 }
-.student-exercise button { margin-top: 1rem; }
+.student-exercise button { /* adjust margin if button is part of a different layout now */
+    margin-top: 1rem;
+}
 
 .feedback-area {
     display: flex;
@@ -534,8 +539,71 @@ textarea {
 }
 #challengeFeedback {
     flex-grow: 1;
-    margin-top: 0;
+    margin-top: 0; /* Remove top margin if it's inside a flex container */
 }
+
+/* NEW: Prompt Destinations */
+.prompt-destinations {
+    margin-top: 2rem; /* Space above this section */
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color); /* Neutral border */
+    background-color: #f9fafb; /* Very light grey background */
+    display: flex; /* Use flex for internal layout */
+    flex-direction: column; /* Stack elements vertically */
+    gap: 1rem; /* Space between internal elements */
+
+    /* Animation properties */
+    opacity: 0;
+    max-height: 0; /* Start collapsed */
+    overflow: hidden;
+    transition: opacity 0.5s ease-out, max-height 0.7s ease-out, margin-top 0.5s ease-out;
+}
+.prompt-destinations.visible {
+    opacity: 1;
+    max-height: 500px; /* Sufficiently large value to show content */
+    /* margin-top: 2rem; // Already defined, maybe don't animate margin */
+}
+
+.prompt-destinations p {
+    color: var(--text-color); /* Darker text for emphasis */
+    margin-bottom: 0; /* No margin below the paragraph */
+}
+
+.destination-links {
+    display: flex; /* Arrange logos in a row */
+    gap: 1.2rem; /* Space between logos */
+    justify-content: center; /* Center the logos */
+    flex-wrap: wrap; /* Wrap logos on small screens */
+    padding-top: 0.5rem; /* Small space above links */
+}
+
+.destination-links a {
+    display: inline-block;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    line-height: 1; /* Remove extra space below images */
+}
+
+.destination-links a:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+    text-decoration: none; /* Ensure no underline on hover */
+}
+
+.destination-links img {
+    width: 40px; /* Fixed size for logos */
+    height: 40px; /* Fixed size for logos */
+    object-fit: contain; /* Ensure image scales without distortion */
+    border-radius: 4px; /* Optional: subtle rounding for logos */
+    vertical-align: middle; /* Align image nicely if in text line */
+}
+
+/* Copy button feedback */
+#copyPromptBtn.success {
+    background-color: var(--success-color);
+    color: white;
+}
+
 
 #completionMessage {
     margin-top: 1.5rem;
@@ -543,11 +611,18 @@ textarea {
     border-radius: var(--border-radius);
     border: 1px solid var(--success-color);
     background-color: var(--success-bg);
-    display: none;
+    display: none; /* Start hidden */
     text-align: center;
+     /* Animation properties - already exist but review */
+    opacity: 0;
+    transform: scale(0.95); /* Start scaled down */
+    transition: opacity var(--transition-speed) ease-out, transform var(--transition-speed) ease-out;
+
 }
 #completionMessage.visible {
-    display: block;
+    display: block; /* Show it before animating */
+    opacity: 1;
+    transform: scale(1);
 }
 #completionMessage h4 {
     color: var(--success-dark);
@@ -573,6 +648,9 @@ textarea {
   padding: 0.6rem;
   border-radius: 20px;
   align-self: center;
+  /* Added margin for spacing from feedback */
+  margin-left: 1rem;
+  flex-shrink: 0; /* Prevent it from shrinking in flex container */
 }
 .light {
   width: 1.5rem;
@@ -581,7 +659,7 @@ textarea {
   background-color: #9ca3af; /* Color base para luz apagada */
   opacity: 0.3;
   transition: opacity 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
+  cursor: pointer; /* Make it clear it might be interactive (though not in this implementation) */
 }
 .light.active {
   opacity: 1;
@@ -652,7 +730,7 @@ textarea {
       box-shadow: 0 2px 4px rgba(0,0,0,0.04);
   }
   .summary-table tbody tr:nth-child(even) {
-      background-color: var(--bg-alt);
+      background-color: var(--bg-alt); /* Keep white background for mobile cards */
   }
 
   .summary-table td {
@@ -683,11 +761,48 @@ textarea {
       color: var(--text-color);
   }
 
-  h1.welcome-title { font-size: 1.5rem; } /* Asegúrate de tener esta clase en tu H1 si es necesario */
-  h1#welcomeMessage { font-size: 1.6rem; } /* O aplica al ID directamente */
+  h1#welcomeMessage { font-size: 1.6rem; } /* Or adjust based on your class/ID */
   h2 { font-size: 1.25rem; }
   .container { padding: 0.5rem; }
-  .section-description { font-size: 0.9rem;} /* Ajusta el selector si es necesario */
-  #paso4 .section-description { font-size: 0.9rem; } /* Ejemplo de selector más específico */
+  /* .section-description { font-size: 0.9rem;}  Already specific selector below */
+  #paso4 .section-description { font-size: 0.9rem; } /* Example of more specific selector */
   .step-section { padding: 1rem; }
+
+  /* Responsive adjustments for Paso 5 feedback area */
+  .feedback-area {
+      flex-direction: column; /* Stack feedback and traffic light */
+      align-items: stretch; /* Stretch feedback to full width */
+      gap: 1rem;
+  }
+  #trafficLight {
+      flex-direction: row; /* Row for traffic light on small screens */
+      justify-content: center; /* Center the lights */
+      margin-left: 0; /* Remove left margin */
+      padding: 0.5rem; /* Adjust padding */
+      border-radius: 15px; /* Adjust border radius */
+      gap: 0.8rem; /* Adjust gap between lights */
+  }
+    #trafficLight .light {
+      width: 1.2rem; /* Smaller lights */
+      height: 1.2rem;
+    }
+
+   .prompt-destinations {
+       padding: 1rem; /* Less padding on small screens */
+       margin-top: 1.5rem; /* Adjust margin top */
+   }
+   .destination-links {
+       justify-content: center; /* Ensure centering */
+       gap: 1rem; /* Adjust gap */
+   }
+   .destination-links img {
+       width: 35px; /* Slightly smaller logos */
+       height: 35px;
+   }
+    #copyPromptBtn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+        align-self: center; /* Center the copy button */
+    }
+
 }

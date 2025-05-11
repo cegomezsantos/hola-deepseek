@@ -1,3 +1,5 @@
+--- START OF FILE script.js ---
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // --- Intersection Observer for Animations ---
@@ -56,32 +58,64 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Helper: Show Feedback with Animation ---
   function showFeedback(element, message, type = 'bad', isLoading = false) {
       if (!element) return;
+      // Ensure element exists and clear previous state quickly
       element.textContent = '';
-      element.className = 'feedback animate-feedback';
+      element.className = 'feedback animate-feedback'; // Reset classes
+      // Add loader immediately if loading
+       if (isLoading) {
+           element.innerHTML = `<span class="loader"></span> ${message}`;
+           element.classList.add('feedback--loading');
+       }
+      // Use a small delay to ensure transition runs
       setTimeout(() => {
-          if (isLoading) {
-              element.innerHTML = `<span class="loader"></span> ${message}`;
-              element.classList.add('feedback--loading');
-          } else {
-              // Asegúrate que el mensaje sea tratado como texto plano
-              element.textContent = message;
+          if (!isLoading) { // If not loading, set final message and type
+              element.textContent = message; // Use textContent for safety
               element.classList.add(`feedback--${type}`);
           }
-          element.classList.add('visible');
-      }, 10);
+          element.classList.add('visible'); // Make it visible
+      }, isLoading ? 0 : 10); // No delay for loading, small delay for final feedback
   }
 
    // --- Helper: Show/Hide Completion Message ---
     function showCompletionMessage(show = true) {
         const completionDiv = document.getElementById('completionMessage');
         if (!completionDiv) return;
+
         if (show) {
-            completionDiv.style.display = 'block';
-            setTimeout(() => { completionDiv.classList.add('visible'); }, 10);
+            // Use a delay to ensure the feedback appears first, then the completion message
+            setTimeout(() => {
+                completionDiv.style.display = 'block'; // Make it display block
+                setTimeout(() => { completionDiv.classList.add('visible'); }, 10); // Add visible class after re-render
+            }, 600); // Delay matches/exceeds feedback animation time
         } else {
             completionDiv.classList.remove('visible');
-            completionDiv.style.display = 'none';
+            // Wait for transition to finish before setting display to none
+            completionDiv.addEventListener('transitionend', function handler() {
+                if (!completionDiv.classList.contains('visible')) {
+                     completionDiv.style.display = 'none';
+                }
+                 completionDiv.removeEventListener('transitionend', handler);
+            });
+             // Fallback in case transitionend doesn't fire (e.g., display was already none)
+            if (!completionDiv.classList.contains('visible') && completionDiv.style.display !== 'none') {
+                 setTimeout(() => { completionDiv.style.display = 'none'; }, 600);
+            }
         }
+    }
+
+    // --- Helper: Show/Hide Prompt Destinations ---
+    function showPromptDestinations(show = true) {
+         const destinationsDiv = document.getElementById('promptDestinations');
+         if (!destinationsDiv) return;
+
+         if (show) {
+            // Use a delay so this appears after feedback but possibly before completion message
+            setTimeout(() => {
+                 destinationsDiv.classList.add('visible'); // CSS transition handles max-height/opacity
+            }, 400); // Slightly shorter delay than completion message
+         } else {
+             destinationsDiv.classList.remove('visible');
+         }
     }
 
 
@@ -93,8 +127,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const warmupForm = document.getElementById('warmupForm');
   if (analyzeBtn && feedback4 && paso4 && warmupForm) {
     analyzeBtn.addEventListener('click', async () => {
-        showFeedback(feedback4, 'Analizando tu prompt...', '', true);
+        // Hide previous feedback immediately
+        if (feedback4) feedback4.classList.remove('visible');
         if (retryBtn) retryBtn.style.display = 'none';
+
         const rol = warmupForm.querySelector('[name="rol"]')?.value.trim() || '';
         const objetivo = warmupForm.querySelector('[name="objetivo"]')?.value.trim() || '';
         const contexto = warmupForm.querySelector('[name="contexto"]')?.value.trim() || '';
@@ -104,6 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
             paso4.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
+
+        showFeedback(feedback4, 'Analizando tu prompt...', '', true); // Show loading
+
         try {
             // **REAL API CALL (Step 4)**
             const res = await fetch('/api/analyze', {
@@ -128,46 +167,50 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Mostrar sugerencias (puede ser HTML o texto plano)
-            // Si viene como HTML, innerHTML es correcto. Si es texto plano, textContent.
-            // Por seguridad, si no estamos seguros, usamos textContent.
              if (feedback4) {
-                 feedback4.textContent = ''; // Clear previous content/loader
-                 feedback4.className = 'feedback animate-feedback'; // Reset classes
+                 // Clear loader and update with final feedback
+                 showFeedback(feedback4, data.suggestions || 'Análisis completado.', feedbackType);
              }
-             showFeedback(feedback4, data.suggestions || 'Análisis completado.', feedbackType);
-
 
             if (feedbackType !== 'good' && retryBtn) {
-                retryBtn.style.display = 'inline-block';
+                // Use a slight delay for retry button to appear after feedback animation
+                setTimeout(() => { retryBtn.style.display = 'inline-block'; }, 500);
             }
 
         } catch (err) {
             console.error("Error en Paso 4:", err);
             showFeedback(feedback4, `Error al analizar: ${err.message}. Intenta de nuevo.`, 'bad');
-            if (retryBtn) retryBtn.style.display = 'inline-block';
+             if (retryBtn) {
+                setTimeout(() => { retryBtn.style.display = 'inline-block'; }, 500);
+             }
         }
-        feedback4.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Scroll to feedback area after animation starts
+         setTimeout(() => { feedback4.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     });
   }
   if (retryBtn && feedback4 && paso4 && warmupForm) {
     retryBtn.addEventListener('click', () => {
-      feedback4.textContent = '';
-      feedback4.className = 'feedback animate-feedback';
+      feedback4.classList.remove('visible'); // Hide feedback immediately
+      feedback4.textContent = ''; // Clear content
+      feedback4.className = 'feedback animate-feedback'; // Reset classes
       retryBtn.style.display = 'none';
       warmupForm.reset();
       paso4.querySelector('input[name="rol"]')?.focus();
     });
   }
 
-  // --- Paso 5: Evaluación semáforo y Finalización ---
+  // --- Paso 5: Evaluación semáforo, Destinos y Finalización ---
   const evaluateBtn = document.getElementById('evaluatePrompt');
   const challengeFeedback = document.getElementById('challengeFeedback');
   const trafficLights = document.querySelectorAll('#trafficLight .light');
   const studentPromptText = document.getElementById('studentPrompt');
   const paso5 = document.getElementById('paso5');
   const completionMessageDiv = document.getElementById('completionMessage');
+  const promptDestinationsDiv = document.getElementById('promptDestinations'); // Get the new div
+  const copyPromptBtn = document.getElementById('copyPromptBtn'); // Get the copy button
 
-  function setTrafficLight(level) { // level: 'red', 'yellow', 'green'
+
+  function setTrafficLight(level) { // level: 'red', 'yellow', 'green' or null to turn off
       trafficLights.forEach(light => {
           light.classList.remove('active');
           if (level && light.classList.contains(level)) {
@@ -176,20 +219,57 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  if (evaluateBtn && challengeFeedback && trafficLights.length > 0 && studentPromptText && paso5 && completionMessageDiv) {
+  // Add copy functionality
+  if (copyPromptBtn && studentPromptText) {
+      copyPromptBtn.addEventListener('click', async () => {
+          const textToCopy = studentPromptText.value.trim();
+          if (textToCopy) {
+              try {
+                  await navigator.clipboard.writeText(textToCopy);
+                  // Provide visual feedback
+                  const originalText = copyPromptBtn.textContent;
+                  copyPromptBtn.textContent = '¡Copiado!';
+                  copyPromptBtn.classList.add('success');
+                  setTimeout(() => {
+                      copyPromptBtn.textContent = originalText;
+                       copyPromptBtn.classList.remove('success');
+                  }, 2000); // Revert after 2 seconds
+              } catch (err) {
+                  console.error('Error al copiar prompt:', err);
+                  // Optionally show a temporary error message
+                  const originalText = copyPromptBtn.textContent;
+                  copyPromptBtn.textContent = 'Error al copiar';
+                   copyPromptBtn.classList.add('feedback--bad'); // Use a feedback class for temp styling
+                  setTimeout(() => {
+                       copyPromptBtn.textContent = originalText;
+                        copyPromptBtn.classList.remove('feedback--bad');
+                  }, 2000);
+              }
+          }
+      });
+  }
+
+
+  if (evaluateBtn && challengeFeedback && trafficLights.length > 0 && studentPromptText && paso5 && completionMessageDiv && promptDestinationsDiv) {
     evaluateBtn.addEventListener('click', async () => {
         const studentPrompt = studentPromptText.value.trim();
 
+        // Hide previous results immediately
         setTrafficLight(null);
         showCompletionMessage(false);
-        showFeedback(challengeFeedback, 'Evaluando tu prompt...', '', true);
+        showPromptDestinations(false);
+        if (challengeFeedback) challengeFeedback.classList.remove('visible'); // Hide feedback immediately
+
 
         if (!studentPrompt) {
             showFeedback(challengeFeedback, 'Escribe tu prompt antes de evaluar.', 'bad');
             setTrafficLight('red');
-            paso5.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Scroll to feedback area after animation starts
+            setTimeout(() => { challengeFeedback.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
             return;
         }
+
+        showFeedback(challengeFeedback, 'Evaluando tu prompt...', '', true); // Show loading
 
         try {
             // **REAL API CALL (Step 5)**
@@ -208,21 +288,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Validar el nivel recibido del backend
             const validLevels = ['red', 'yellow', 'green'];
-            const level = validLevels.includes(info.level) ? info.level : 'red'; // Default a 'red' si no es válido
+            const level = validLevels.includes(info.level) ? info.level : 'red'; // Default a 'red' if not valid
 
-             // Mapear nivel ('red', 'yellow', 'green') a tipo de feedback para CSS ('bad', 'okay', 'good')
+             // Mapear level ('red', 'yellow', 'green') to feedback type ('bad', 'okay', 'good')
             let feedbackType = 'bad';
             if (level === 'green') feedbackType = 'good';
             else if (level === 'yellow') feedbackType = 'okay';
 
+            // Set traffic light immediately
             setTrafficLight(level);
+
+            // Show feedback after traffic light updates
             showFeedback(challengeFeedback, info.feedback || 'Evaluación completada.', feedbackType);
 
-            if (feedbackType === 'okay' || feedbackType === 'good') {
-                 showCompletionMessage(true);
-                 completionMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // If successful (okay or good), show destinations and completion message
+            if (level === 'yellow' || level === 'green') {
+                 showPromptDestinations(true); // Will animate in after a delay
+                 showCompletionMessage(true); // Will animate in after a delay
+                 // Scroll to the destinations/completion message area after their animation starts
+                 setTimeout(() => {
+                     // Scroll to destinations div as it's the first new element
+                     promptDestinationsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                 }, 700); // Delay matches/exceeds animation delays
             } else {
+                 showPromptDestinations(false);
                  showCompletionMessage(false);
+                 // Scroll to feedback area for 'red' results
+                  setTimeout(() => { challengeFeedback.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
             }
 
 
@@ -230,12 +322,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error en Paso 5:", e);
             showFeedback(challengeFeedback, `Error al evaluar: ${e.message}. Intenta más tarde.`, 'bad');
             setTrafficLight('red');
+            showPromptDestinations(false);
             showCompletionMessage(false);
-        }
-
-        // Scroll al feedback solo si el mensaje de completado NO se muestra
-        if (!completionMessageDiv.classList.contains('visible')) {
-             challengeFeedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+             // Scroll to feedback area on error
+             setTimeout(() => { challengeFeedback.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
         }
     });
   }
