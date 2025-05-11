@@ -1,5 +1,3 @@
---- START OF FILE script.js ---
-
 document.addEventListener('DOMContentLoaded', () => {
 
   // --- Intersection Observer for Animations ---
