@@ -625,8 +625,8 @@ textarea {
 }
 
 .destination-links img {
-    width: 60px; /* Increased size for logos */
-    height: 60px; /* Keep aspect ratio */
+    width: 120px; /* Increased size for logos */
+    height: 120px; /* Keep aspect ratio */
     object-fit: contain; /* Ensure image scales without distortion */
     border-radius: 4px; /* Optional: subtle rounding for logos */
     vertical-align: middle; /* Align image nicely if in text line */
