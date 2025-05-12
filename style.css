@@ -41,6 +41,10 @@
   --transition-speed: 0.3s;
 }
 
+#welcomeMessage {
+    color: white;
+}
+
 /* Reset & Base Styles */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -112,7 +116,7 @@ code, .fraccion {
 .main-header h1 { color: var(--text-color); } /* MODIFICADO: Texto oscuro, no rojo */
 .subtitle {
   font-size: 1.1rem;
-  color: var(--text-light);
+  color: white;
 }
 
 /* Step Section Layout */
