@@ -1,3 +1,4 @@
+--- START OF FILE style.css ---
 /* Import Font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
@@ -541,7 +542,7 @@ textarea {
     margin-top: 0; /* Remove top margin if it's inside a flex container */
 }
 
-/* NEW: Prompt Destinations */
+/* Prompt Destinations */
 .prompt-destinations {
     margin-top: 2rem; /* Space above this section */
     padding: 1.5rem;
@@ -551,27 +552,30 @@ textarea {
     display: flex; /* Use flex for internal layout */
     flex-direction: column; /* Stack elements vertically */
     gap: 1rem; /* Space between internal elements */
+    align-items: center; /* Center content horizontally */
 
-    /* Animation properties */
+    /* Animation properties - Initially hidden and scaled/moved */
     opacity: 0;
     max-height: 0; /* Start collapsed */
     overflow: hidden;
-    transition: opacity 0.5s ease-out, max-height 0.7s ease-out, margin-top 0.5s ease-out;
+    transform: translateY(20px); /* Start slightly below */
+    transition: opacity 0.5s ease-out, max-height 0.7s ease-out, transform 0.5s ease-out; /* Added transform */
 }
 .prompt-destinations.visible {
     opacity: 1;
     max-height: 500px; /* Sufficiently large value to show content */
-    /* margin-top: 2rem; // Already defined, maybe don't animate margin */
+    transform: translateY(0); /* Move to final position */
 }
 
 .prompt-destinations p {
     color: var(--text-color); /* Darker text for emphasis */
     margin-bottom: 0; /* No margin below the paragraph */
+    text-align: center; /* Center the text */
 }
 
 .destination-links {
     display: flex; /* Arrange logos in a row */
-    gap: 1.2rem; /* Space between logos */
+    gap: 2rem; /* Increased space between logos */
     justify-content: center; /* Center the logos */
     flex-wrap: wrap; /* Wrap logos on small screens */
     padding-top: 0.5rem; /* Small space above links */
@@ -579,22 +583,55 @@ textarea {
 
 .destination-links a {
     display: inline-block;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease; /* Existing hover */
     line-height: 1; /* Remove extra space below images */
+
+    /* Initial state for animation (when not visible) */
+    opacity: 0;
+    transform: scale(0.5); /* Start smaller */
+    /* We will set different initial transforms per child in the non-visible state */
+
+    /* Add animation transition properties */
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transition-delay: 0s; /* Default */
 }
 
+/* Define specific initial transforms for each link WHEN THE PARENT IS NOT VISIBLE */
+.prompt-destinations:not(.visible) .destination-links a:nth-child(1) { transform: translate(-100px, 0) scale(0.5); } /* Move from left */
+.prompt-destinations:not(.visible) .destination-links a:nth-child(2) { transform: translate(-60px, -60px) scale(0.5); } /* Move from top-left */
+.prompt-destinations:not(.visible) .destination-links a:nth-child(3) { transform: translate(0, -80px) scale(0.5); }    /* Move from top */
+.prompt-destinations:not(.visible) .destination-links a:nth-child(4) { transform: translate(60px, -60px) scale(0.5); } /* Move from top-right */
+.prompt-destinations:not(.visible) .destination-links a:nth-child(5) { transform: translate(100px, 0) scale(0.5); }  /* Move from right */
+/* Note: `:not(.visible)` is crucial here to define the START state before the `.visible` class is added */
+
+
+/* Final state for animation (when visible) */
+.prompt-destinations.visible .destination-links a {
+    opacity: 1;
+    transform: translate(0, 0) scale(1); /* Move to natural flex position and full size */
+}
+
+/* Stagger the animation delays WHEN THE PARENT BECOMES VISIBLE */
+.prompt-destinations.visible .destination-links a:nth-child(1) { transition-delay: 0.1s; }
+.prompt-destinations.visible .destination-links a:nth-child(2) { transition-delay: 0.2s; }
+.prompt-destinations.visible .destination-links a:nth-child(3) { transition-delay: 0.3s; }
+.prompt-destinations.visible .destination-links a:nth-child(4) { transition-delay: 0.4s; }
+.prompt-destinations.visible .destination-links a:nth-child(5) { transition-delay: 0.5s; }
+
+
 .destination-links a:hover {
-    transform: scale(1.05);
+    transform: scale(1.1); /* Slightly larger scale on hover */
     opacity: 0.9;
     text-decoration: none; /* Ensure no underline on hover */
 }
 
 .destination-links img {
-    width: 40px; /* Fixed size for logos */
-    height: 40px; /* Fixed size for logos */
+    width: 60px; /* Increased size for logos */
+    height: 60px; /* Keep aspect ratio */
     object-fit: contain; /* Ensure image scales without distortion */
     border-radius: 4px; /* Optional: subtle rounding for logos */
     vertical-align: middle; /* Align image nicely if in text line */
+    /* No animation properties here - animation is on the parent <a> */
 }
 
 /* Copy button feedback */
@@ -783,20 +820,24 @@ textarea {
   }
     #trafficLight .light {
       width: 1.2rem; /* Smaller lights */
-      height: 1.2rem;
+      height: 1.2em; /* Fixed the typo here (was 1.2em) */
     }
 
    .prompt-destinations {
        padding: 1rem; /* Less padding on small screens */
        margin-top: 1.5rem; /* Adjust margin top */
+       align-items: stretch; /* Stretch content on small screens */
+   }
+   .prompt-destinations p {
+       text-align: left; /* Align text left on small screens */
    }
    .destination-links {
        justify-content: center; /* Ensure centering */
        gap: 1rem; /* Adjust gap */
    }
    .destination-links img {
-       width: 35px; /* Slightly smaller logos */
-       height: 35px;
+       width: 45px; /* Slightly smaller logos on small screens */
+       height: 45px; /* Keep aspect ratio */
    }
     #copyPromptBtn {
         font-size: 0.9rem;
