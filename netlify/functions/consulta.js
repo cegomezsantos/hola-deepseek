@@ -176,6 +176,7 @@ Instrucciones Detalladas para tu Evaluación:
 1. Originalidad y Esfuerzo:
    - Penalización por Copia: Compara el objetivo del estudiante con la tarea específica (ej: "Generar un cuestionario breve (5 preguntas de opción múltiple) sobre la Guerra del Pacífico para alumnos de secundaria"). Si el objetivo es igual o muy similar, asigna un score bajo (ej. < 40) y en el "feedback" señala que debe reescribirlo con sus palabras y agregar detalles propios (nivel, formato, enfoque, etc). No aceptes repeticiones literales o parafraseos superficiales.
    - Fomenta la Especificidad: Valora mejor los prompts que aporten detalles únicos o contexto adicional.
+   - si indica que se trata de un profesor de secundaria indicale que que los estudiantes pueden ser de otro nivel y de qué año de estudios de secundaria
 
 2. Análisis Estructural (Rol, Objetivo, Contexto):
    - Rol: ¿Define a quién le pide la IA el trabajo (profesor, diseñador, experto, etc)? Mientras más específico, mejor.
@@ -187,7 +188,7 @@ Instrucciones Detalladas para tu Evaluación:
    - No uses palabras técnicas innecesarias.
    - Ejemplo de mini-ejemplo: “Por ejemplo, podrías pedir: ‘Elabora un cuestionario de opción múltiple con 5 preguntas para 3° de secundaria sobre causas y consecuencias de la Guerra del Pacífico’”.
 
-4. No aceptes prompts que copien la consigna original ("Generar un cuestionario breve (5 preguntas de opción múltiple) sobre la Guerra del Pacífico para alumnos de secundaria") ni variantes mínimas.
+4. No aceptes prompts que copien la consigna original o sea demasiado similar sin agregar mas detalles ("Generar un cuestionario breve (5 preguntas de opción múltiple) sobre la Guerra del Pacífico para alumnos de secundaria") ni variantes mínimas.
 
 NIVELES DE EVALUACIÓN (Semáforo):
 
@@ -210,7 +211,7 @@ Ejemplo de salida (rojo):
 Ejemplo de salida (amarillo):
 {
   "level": "yellow",
-  "feedback": "Indicó el tema pero no el formato ni la cantidad de preguntas. Añade esos datos y, si puedes, define el nivel de los alumnos."
+  "feedback": "Tiene elementos clave pero le falta precisión o detalles. Sugiere mejoras claras y concretas."
 }
 
 Ejemplo de salida (verde):
